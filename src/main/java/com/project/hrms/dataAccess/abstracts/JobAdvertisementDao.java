@@ -32,9 +32,6 @@ public interface JobAdvertisementDao extends JpaRepository<JobAdvertisement, Int
 	@Transactional
 	@Modifying
 	@Query("Update JobAdvertisement set isActive=:isActive where jobAdvertisementName=:jobAdvertisementName")
-	void updateIsActiveByJobAdvertisementName(
-													/* @Param("isActive") */ 
-			boolean isActive,			 /* @Param("jobAdvertisementId") */ 
-			String jobAdvertisementName);
+	void updateIsActiveByJobAdvertisementName(boolean isActive,String jobAdvertisementName);
 	
 }
