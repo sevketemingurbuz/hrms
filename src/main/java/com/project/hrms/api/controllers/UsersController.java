@@ -7,21 +7,24 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.project.hrms.business.abstracts.UserService;
+import com.project.hrms.core.utilities.results.DataResult;
 import com.project.hrms.entities.concretes.User;
 
 @RestController
-@RequestMapping("/api")
-public class UserController {
+@RequestMapping("/api/users")
+public class UsersController {
 
-	UserService userService;
-	
+	private UserService userService;
+
 	@Autowired
-	public UserController(UserService userService) {
+	public UsersController(UserService userService) {
+		super();
 		this.userService= userService;
 	}
-	@GetMapping("/users")
-	public List<User>getall(){
-		return userService.user();
+	
+	@GetMapping("/getall")
+	public DataResult<List<User>> getall(){
+		return userService.getAll();
 	}
 	
 	

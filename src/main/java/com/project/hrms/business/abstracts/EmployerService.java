@@ -4,11 +4,11 @@ import java.util.List;
 
 import com.project.hrms.core.utilities.results.DataResult;
 import com.project.hrms.core.utilities.results.Result;
-import com.project.hrms.entities.concretes.User;
+import com.project.hrms.entities.concretes.Employer;
 
-public interface UserService {
+public interface EmployerService {
 
-	DataResult<List<User>> getAll();
-	Result checkIfEmailAlreadyExists (String email);
+	DataResult<List<Employer>> getAll ();
+	Result add(Employer employerS);
 	
 }
