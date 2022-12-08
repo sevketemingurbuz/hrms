@@ -4,10 +4,10 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-//import org.springframework.data.repository.query.Param;
 
 import com.project.hrms.entities.concretes.JobAdvertisement;
 import com.project.hrms.entities.dtos.JobAdvertisementWithEmployerDto;
@@ -19,12 +19,12 @@ public interface JobAdvertisementDao extends JpaRepository<JobAdvertisement, Int
 			+ "From Employer e Inner Join e.jobAdvertisement j";
 
 	@Query(queryString)
-	List<JobAdvertisementWithEmployerDto> getAllDto();
+	List<JobAdvertisementWithEmployerDto> getAllWithDto();
 
-	@Query(queryString)
-	List<JobAdvertisementWithEmployerDto> findByOrderByJobAdvertisementNameDesc(); //Çalışmıyor
+	@Query(queryString + " where j.isActive=:isActive")
+	List<JobAdvertisementWithEmployerDto> findByIsActiveTrueOrderByDeadline(Sort sort, boolean isActive);
 	
-	@Query(queryString)
+	@Query(queryString + " where j.isActive=true AND e.companyName=:companyName")
 	List<JobAdvertisementWithEmployerDto> getByEmployer_CompanyNameAndIsActiveTrue(String companyName);
 	
 	

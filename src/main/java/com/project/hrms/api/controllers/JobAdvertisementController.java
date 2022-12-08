@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.project.hrms.business.abstracts.JobAdvertisementService;
@@ -45,8 +46,8 @@ public class JobAdvertisementController {
 	}
 	
 	@GetMapping("/findByOrderByDeadlineDesc")      //Çalışmıyor
-	public DataResult<List<JobAdvertisementWithEmployerDto>> findByOrderByDeadlineDesc(){
-		return jobAdvertisementService.findByOrderByJobAdvertisementNameDesc();
+	public DataResult<List<JobAdvertisementWithEmployerDto>> getByWithDto(boolean isActive){
+		return jobAdvertisementService.findByOrderByDeadlineIsActive(isActive);
 	}
 	
 	@PostMapping("/updateIsActive")

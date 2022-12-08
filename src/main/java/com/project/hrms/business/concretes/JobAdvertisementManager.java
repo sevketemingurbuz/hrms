@@ -47,7 +47,7 @@ public class JobAdvertisementManager implements JobAdvertisementService{
 	
 	@Override
 	public DataResult<List<JobAdvertisementWithEmployerDto>> getAllDto(){
-		return new SuccessDataResult<List<JobAdvertisementWithEmployerDto>>(this.jobAdvertisementDao.getAllDto(), 
+		return new SuccessDataResult<List<JobAdvertisementWithEmployerDto>>(this.jobAdvertisementDao.getAllWithDto(), 
 				"İş ilanları başarıyla listelendi");
 	}
 
@@ -59,9 +59,10 @@ public class JobAdvertisementManager implements JobAdvertisementService{
 	}
 
 	@Override //Çalışmıyor
-	public DataResult<List<JobAdvertisementWithEmployerDto>> findByOrderByJobAdvertisementNameDesc() { 
+	public DataResult<List<JobAdvertisementWithEmployerDto>> findByOrderByDeadlineIsActive(boolean isActive) { 
+		Sort sort = Sort.by(Sort.Direction.DESC, "j.deadline");
 		return new SuccessDataResult<List<JobAdvertisementWithEmployerDto>> (
-				this.jobAdvertisementDao.findByOrderByJobAdvertisementNameDesc(), "İş ilanları tarihe göre başarıyla listelendi");
+				this.jobAdvertisementDao.findByIsActiveTrueOrderByDeadline(sort, isActive), "İş ilanları tarihe göre başarıyla listelendi");
 	}
 
 	@Override

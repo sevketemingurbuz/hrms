@@ -14,7 +14,7 @@ public interface JobAdvertisementService {
 	public DataResult<List<JobAdvertisementWithEmployerDto>> getAllDto();
 	public DataResult<List<JobAdvertisementWithEmployerDto>> getByEmployer_CompanyNameAndIsActiveTrue(String companName);
 	public DataResult<List<JobAdvertisement>> getAllSorted();
-	public DataResult<List<JobAdvertisementWithEmployerDto>> findByOrderByJobAdvertisementNameDesc();
+	public DataResult<List<JobAdvertisementWithEmployerDto>> findByOrderByDeadlineIsActive(boolean isActive);
 	public Result updateIsActiveByJobAdventisementName (boolean isActive, String jobAdventisementName);
 	
 }
