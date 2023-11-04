@@ -9,12 +9,16 @@ import com.project.hrms.entities.dtos.JobAdvertisementWithEmployerDto;
 
 public interface JobAdvertisementService {
 
-	public DataResult<List<JobAdvertisement>>  getAll();
-	public Result add(JobAdvertisement jobAdvertisement);
-	public DataResult<List<JobAdvertisementWithEmployerDto>> getAllDto();
-	public DataResult<List<JobAdvertisementWithEmployerDto>> getByEmployer_CompanyNameAndIsActiveTrue(String companName);
-	public DataResult<List<JobAdvertisement>> getAllSorted();
-	public DataResult<List<JobAdvertisementWithEmployerDto>> findByOrderByDeadlineIsActive(boolean isActive);
-	public Result updateIsActiveByJobAdventisementName (boolean isActive, String jobAdventisementName);
+	DataResult<List<JobAdvertisement>>  getAll();
+	Result add(JobAdvertisement jobAdvertisement);
+	DataResult<List<JobAdvertisementWithEmployerDto>> getAllDto();
+	DataResult<List<JobAdvertisementWithEmployerDto>> getByEmployer_CompanyNameAndIsActiveTrue(String companName);
+	DataResult<JobAdvertisementWithEmployerDto> getByJobAdvertisement_JobAdvertisementId(int  jobAdvertisementId);
+	DataResult<List<JobAdvertisement>> getByJobAdvertisementName(String jobAdvertisementName);
+	DataResult<List<JobAdvertisementWithEmployerDto>> getByWebsite(String website);
+	DataResult<List<JobAdvertisement>> getAllSorted();
+	DataResult<List<JobAdvertisementWithEmployerDto>> findByIsActiveAndOrderByDeadline(boolean isActive);
+	Result updateIsActiveByJobAdventisementName (boolean isActive, String jobAdventisementName);
+	
 	
 }

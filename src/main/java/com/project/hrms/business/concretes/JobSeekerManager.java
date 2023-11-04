@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.project.hrms.business.abstracts.JobSeekerService;
 import com.project.hrms.business.abstracts.UserService;
-import com.project.hrms.core.mernis.business.abstracts.JobSeekersFakeService;
+import com.project.hrms.core.mernis.adapters.MernisCheckService;
 import com.project.hrms.core.utilities.results.DataResult;
 import com.project.hrms.core.utilities.results.ErrorResult;
 import com.project.hrms.core.utilities.results.Result;
@@ -27,17 +27,15 @@ import com.project.hrms.entities.concretes.JobSeeker;
 public class JobSeekerManager implements JobSeekerService{
 
 	private JobSeekerDao jobSeekerDao;
-	private JobSeekersFakeService jobSeekersFakeService;
 	private UserService userService;
-	//private UserCheckService userCheckService;
+	private MernisCheckService mernisCheckService;
 	
 	@Autowired
-	public JobSeekerManager(JobSeekerDao jobSeekerDao, JobSeekersFakeService jobSeekersFakeService, UserService userService) {
+	public JobSeekerManager(JobSeekerDao jobSeekerDao, UserService userService, MernisCheckService mernisCheckService) {
 		super();
 		this.jobSeekerDao= jobSeekerDao; 
-		this.jobSeekersFakeService= jobSeekersFakeService;
 		this.userService= userService;
-		//this.userCheckService= userCheckService;
+		this.mernisCheckService= mernisCheckService;
 	}
 	
 	@Override
@@ -47,7 +45,7 @@ public class JobSeekerManager implements JobSeekerService{
 	
 	@Override
 	public DataResult<JobSeeker> getById(int id) {
-		return new SuccessDataResult<JobSeeker>(this.jobSeekerDao.getById(id), "İş arayan eklendi");
+		return new SuccessDataResult<JobSeeker>(this.jobSeekerDao.getById(id), "İş arayan getirildi");
 	}
 	
 	public DataResult<JobSeeker> getByJobSeekerName(String name){
@@ -75,6 +73,7 @@ public class JobSeekerManager implements JobSeekerService{
 		Result retryPassword = RetryPasswordValidator.valid(jobSeeker.getRetry_password());
 		Result emailCheck = userService.checkIfEmailAlreadyExists(jobSeeker.getEmail());
 		Result identificationCheck = checkIfIdentificationAlreadyExists(jobSeeker.getIdentification());
+		Result chekedPerson = mernisCheckService.checkIfRealPerson(jobSeeker);
 		
 		if (!name.isSuccess()) return new ErrorResult(name.getMessage());
 		if (!lastName.isSuccess()) return new ErrorResult(lastName.getMessage());
@@ -85,7 +84,8 @@ public class JobSeekerManager implements JobSeekerService{
 		if (!retryPassword.isSuccess()) return new ErrorResult(retryPassword.getMessage());
 		if (!emailCheck.isSuccess()) return new ErrorResult(emailCheck.getMessage()); 
 		if (!identificationCheck.isSuccess()) return new ErrorResult(identificationCheck.getMessage());
-		if (!jobSeekersFakeService.verifyIdentification()) return new ErrorResult("Böyle bir kişi yaşamıyor");
+		if (!chekedPerson.isSuccess()) return new ErrorResult(chekedPerson.getMessage());
+		//if (!jobSeekersFakeService.verifyIdentification()) return new ErrorResult("Böyle bir kişi yaşamıyor");
 
 			this.jobSeekerDao.save(jobSeeker);
 		return new SuccessResult("İş arayan eklendi");
@@ -107,11 +107,11 @@ public class JobSeekerManager implements JobSeekerService{
 		return new SuccessResult("İş arayan silindi!");
 	}
 	
-	public Result updateAll(int id, JobSeeker jobSeeker, String name, String identification) {
+	public Result updateAll(int id, String email, String password, JobSeeker jobSeeker) {
 
 			jobSeeker = jobSeekerDao.getById(id);
-			jobSeeker.setName(name);
-			jobSeeker.setIdentification(identification);
+			jobSeeker.setEmail(email);
+			jobSeeker.setPassword(password);
 			this.jobSeekerDao.save(jobSeeker);
 		
 		return new SuccessResult("İş arayan güncellendi");

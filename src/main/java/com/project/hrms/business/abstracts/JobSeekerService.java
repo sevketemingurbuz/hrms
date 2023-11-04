@@ -12,7 +12,7 @@ public interface JobSeekerService {
 	public DataResult<JobSeeker> getById(int id);
 	public Result add(JobSeeker jobSeeker) throws Exception;
 	public Result deleteById(int id);
-	public Result updateAll(int id,  JobSeeker jobSeeker, String name, String identification);
+	public Result updateAll(int id,  String email, String password, JobSeeker jobSeeker);
 	public DataResult<JobSeeker> getByJobSeekerName(String name);
 	
 }

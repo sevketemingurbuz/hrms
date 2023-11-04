@@ -2,7 +2,6 @@ package com.project.hrms.core.mernis.adapters;
 
 import org.springframework.stereotype.Service;
 
-import com.project.hrms.core.mernis.business.abstracts.UserCheckService;
 import com.project.hrms.core.utilities.results.ErrorResult;
 import com.project.hrms.core.utilities.results.Result;
 import com.project.hrms.core.utilities.results.SuccessResult;
@@ -11,7 +10,7 @@ import com.project.hrms.entities.concretes.JobSeeker;
 import tr.gov.nvi.tckimlik.WS.KPSPublicSoapProxy;
 
 @Service
-public class MernisServiceAdapter implements UserCheckService{
+public class MernisServiceAdapter implements MernisCheckService{
 	
 	@Override
 	public Result checkIfRealPerson (JobSeeker jobSeeker) throws Exception{
@@ -24,7 +23,7 @@ public class MernisServiceAdapter implements UserCheckService{
 					Integer.parseInt(jobSeeker.getDateOfYear()));
 			
 			if (!result) {
-				return new ErrorResult("Böyle bir kişi yaşamıyor");
+				return new ErrorResult("Geçersiz kimlik doğrulama");
 			}
 			
 			return new SuccessResult();

@@ -15,18 +15,25 @@ import com.project.hrms.entities.dtos.JobAdvertisementWithEmployerDto;
 public interface JobAdvertisementDao extends JpaRepository<JobAdvertisement, Integer>{
 	
 	public final String queryString = "Select new com.project.hrms.entities.dtos.JobAdvertisementWithEmployerDto("
-			+ "e.companyName, j.jobAdvertisementName, j.openPosition, j.releaseDateTime, j.deadline) "
+			+ "e.companyName, e.webSite, j.jobAdvertisementId, j.jobAdvertisementName, j.openPosition, j.releaseDateTime, j.deadline) "
 			+ "From Employer e Inner Join e.jobAdvertisement j";
 
 	@Query(queryString)
 	List<JobAdvertisementWithEmployerDto> getAllWithDto();
 
 	@Query(queryString + " where j.isActive=:isActive")
-	List<JobAdvertisementWithEmployerDto> findByIsActiveTrueOrderByDeadline(Sort sort, boolean isActive);
+	List<JobAdvertisementWithEmployerDto> findByIsActiveAndOrderByDeadline(Sort sort, boolean isActive);
 	
-	@Query(queryString + " where j.isActive=true AND e.companyName=:companyName")
+	@Query(queryString + " WHERE j.isActive = true AND e.companyName LIKE %:companyName%")
 	List<JobAdvertisementWithEmployerDto> getByEmployer_CompanyNameAndIsActiveTrue(String companyName);
 	
+	@Query(queryString + " where j.jobAdvertisementId=:jobAdvertisementId")
+	JobAdvertisementWithEmployerDto getByJobAdvertisement_JobAdvertisementId(int jobAdvertisementId);
+	
+	List<JobAdvertisement>  getByJobAdvertisementName(String jobAdvertisementName);
+	
+	@Query(queryString + " where e.webSite=:webSite")
+	List<JobAdvertisementWithEmployerDto> getByEmployer_WebSite(String webSite);
 	
 	
 	@Transactional

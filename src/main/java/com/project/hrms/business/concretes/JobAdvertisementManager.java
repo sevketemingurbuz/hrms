@@ -2,6 +2,7 @@ package com.project.hrms.business.concretes;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class JobAdvertisementManager implements JobAdvertisementService{
 
 	JobAdvertisementDao jobAdvertisementDao;
 	
+	@Autowired
 	public JobAdvertisementManager(JobAdvertisementDao jobAdvertisementDao) {
 		this.jobAdvertisementDao= jobAdvertisementDao;
 	}
@@ -47,7 +49,7 @@ public class JobAdvertisementManager implements JobAdvertisementService{
 	
 	@Override
 	public DataResult<List<JobAdvertisementWithEmployerDto>> getAllDto(){
-		return new SuccessDataResult<List<JobAdvertisementWithEmployerDto>>(this.jobAdvertisementDao.getAllWithDto(), 
+			return new SuccessDataResult<List<JobAdvertisementWithEmployerDto>>(jobAdvertisementDao.getAllWithDto(), 
 				"İş ilanları başarıyla listelendi");
 	}
 
@@ -57,12 +59,33 @@ public class JobAdvertisementManager implements JobAdvertisementService{
 				this.jobAdvertisementDao.getByEmployer_CompanyNameAndIsActiveTrue(companyName), 
 				companyName + " firmasına ait tüm iş ilanları başarıyla listelendi");
 	}
-
-	@Override //Çalışmıyor
-	public DataResult<List<JobAdvertisementWithEmployerDto>> findByOrderByDeadlineIsActive(boolean isActive) { 
+	
+	@Override
+	public DataResult <JobAdvertisementWithEmployerDto> getByJobAdvertisement_JobAdvertisementId(int  jobAdvertisementId){
+		return new SuccessDataResult <JobAdvertisementWithEmployerDto>(
+				this.jobAdvertisementDao.getByJobAdvertisement_JobAdvertisementId(jobAdvertisementId),
+				jobAdvertisementId + " id ye ait tüm iş ilanları başarıyla listelendi");
+	}
+	
+	@Override
+	public DataResult<List<JobAdvertisement>> getByJobAdvertisementName(String jobAdvertisementName){
+		return new SuccessDataResult<List<JobAdvertisement>>(this.jobAdvertisementDao.getByJobAdvertisementName(jobAdvertisementName), "İş ilanları isme göre getirildi");
+	}
+	
+	
+	
+	@Override
+	public DataResult<List<JobAdvertisementWithEmployerDto>> getByWebsite(String webSite){
+		return new SuccessDataResult<List<JobAdvertisementWithEmployerDto>>(
+				this.jobAdvertisementDao.getByEmployer_WebSite(webSite),
+				webSite + " sitesine ait tüm iş ilanları başarıyla listelendi");
+	}
+	
+	@Override 
+	public DataResult<List<JobAdvertisementWithEmployerDto>> findByIsActiveAndOrderByDeadline(boolean isActive) { 
 		Sort sort = Sort.by(Sort.Direction.DESC, "j.deadline");
 		return new SuccessDataResult<List<JobAdvertisementWithEmployerDto>> (
-				this.jobAdvertisementDao.findByIsActiveTrueOrderByDeadline(sort, isActive), "İş ilanları tarihe göre başarıyla listelendi");
+				this.jobAdvertisementDao.findByIsActiveAndOrderByDeadline(sort, isActive), "İş ilanları tarihe göre başarıyla listelendi");
 	}
 
 	@Override

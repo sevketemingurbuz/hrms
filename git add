@@ -1,0 +1,670 @@
+warning: LF will be replaced by CRLF in pom.xml.
+The file will have its original line endings in your working directory
+[1mdiff --git a/pom.xml b/pom.xml[m
+[1mindex 36045db..2b44dc4 100644[m
+[1m--- a/pom.xml[m
+[1m+++ b/pom.xml[m
+[36m@@ -57,6 +57,16 @@[m
+ 		    <artifactId>springfox-swagger-ui</artifactId>[m
+ 		    <version>2.9.2</version>[m
+ 		</dependency>[m
+[32m+[m		[32m <dependency>[m
+[32m+[m	[32m        <groupId>com.cloudinary</groupId>[m
+[32m+[m	[32m        <artifactId>cloudinary-http44</artifactId>[m
+[32m+[m	[32m        <version>1.29.0</version>[m
+[32m+[m	[32m    </dependency>[m
+[32m+[m	[41m    [m	[32m<dependency>[m
+[32m+[m		[32m    <groupId>org.springframework.boot</groupId>[m
+[32m+[m		[32m    <artifactId>spring-boot-starter-validation</artifactId>[m
+[32m+[m		[32m    <version>2.7.5</version>[m
+[32m+[m		[32m</dependency>[m
+ 	</dependencies>[m
+ [m
+ 	<build>[m
+[1mdiff --git a/src/main/java/com/project/hrms/api/controllers/EmployerController.java b/src/main/java/com/project/hrms/api/controllers/EmployerController.java[m
+[1mindex c9124ee..e6538cb 100644[m
+[1m--- a/src/main/java/com/project/hrms/api/controllers/EmployerController.java[m
+[1m+++ b/src/main/java/com/project/hrms/api/controllers/EmployerController.java[m
+[36m@@ -2,6 +2,8 @@[m [mpackage com.project.hrms.api.controllers;[m
+ [m
+ import java.util.List;[m
+ [m
+[32m+[m[32mimport org.springframework.beans.factory.annotation.Autowired;[m
+[32m+[m[32mimport org.springframework.web.bind.annotation.CrossOrigin;[m
+ import org.springframework.web.bind.annotation.GetMapping;[m
+ import org.springframework.web.bind.annotation.PostMapping;[m
+ import org.springframework.web.bind.annotation.RequestBody;[m
+[36m@@ -13,12 +15,14 @@[m [mimport com.project.hrms.core.utilities.results.DataResult;[m
+ import com.project.hrms.core.utilities.results.Result;[m
+ import com.project.hrms.entities.concretes.Employer;[m
+ [m
+[32m+[m[32m@CrossOrigin[m
+ @RestController[m
+ @RequestMapping("/api/employer")[m
+ public class EmployerController {[m
+ [m
+ 	private EmployerService employerService;[m
+ 	[m
+[32m+[m	[32m@Autowired[m
+ 	public EmployerController (EmployerService employerService){[m
+ 		super();[m
+ 		this.employerService= employerService;[m
+[1mdiff --git a/src/main/java/com/project/hrms/api/controllers/JobAdvertisementController.java b/src/main/java/com/project/hrms/api/controllers/JobAdvertisementController.java[m
+[1mindex 8b426a4..4ad9483 100644[m
+[1m--- a/src/main/java/com/project/hrms/api/controllers/JobAdvertisementController.java[m
+[1m+++ b/src/main/java/com/project/hrms/api/controllers/JobAdvertisementController.java[m
+[36m@@ -1,12 +1,23 @@[m
+ package com.project.hrms.api.controllers;[m
+ [m
+[32m+[m[32mimport java.util.HashMap;[m
+ import java.util.List;[m
+[32m+[m[32mimport java.util.Map;[m
+ [m
+[32m+[m[32mimport javax.validation.Valid;[m
+[32m+[m
+[32m+[m[32mimport org.springframework.beans.factory.annotation.Autowired;[m
+[32m+[m[32mimport org.springframework.http.HttpStatus;[m
+[32m+[m[32mimport org.springframework.http.ResponseEntity;[m
+[32m+[m[32mimport org.springframework.validation.FieldError;[m
+[32m+[m[32mimport org.springframework.web.bind.MethodArgumentNotValidException;[m
+[32m+[m[32mimport org.springframework.web.bind.annotation.CrossOrigin;[m
+[32m+[m[32mimport org.springframework.web.bind.annotation.ExceptionHandler;[m
+ import org.springframework.web.bind.annotation.GetMapping;[m
+ import org.springframework.web.bind.annotation.PostMapping;[m
+ import org.springframework.web.bind.annotation.RequestBody;[m
+ import org.springframework.web.bind.annotation.RequestMapping;[m
+[31m-import org.springframework.web.bind.annotation.RequestParam;[m
+[32m+[m[32mimport org.springframework.web.bind.annotation.ResponseStatus;[m
+ import org.springframework.web.bind.annotation.RestController;[m
+ [m
+ import com.project.hrms.business.abstracts.JobAdvertisementService;[m
+[36m@@ -15,12 +26,16 @@[m [mimport com.project.hrms.core.utilities.results.Result;[m
+ import com.project.hrms.entities.concretes.JobAdvertisement;[m
+ import com.project.hrms.entities.dtos.JobAdvertisementWithEmployerDto;[m
+ [m
+[32m+[m[32mimport com.project.hrms.core.utilities.results.ErrorDataResult;[m
+[32m+[m
+[32m+[m[32m@CrossOrigin[m
+ @RestController[m
+ @RequestMapping("/api/jobAdvertisement")[m
+ public class JobAdvertisementController {[m
+ [m
+ 	JobAdvertisementService jobAdvertisementService;[m
+ 	[m
+[32m+[m	[32m@Autowired[m
+ 	public JobAdvertisementController(JobAdvertisementService jobAdvertisementService) {[m
+ 		this.jobAdvertisementService= jobAdvertisementService;[m
+ 	}[m
+[36m@@ -31,11 +46,24 @@[m [mpublic class JobAdvertisementController {[m
+ 	}[m
+ 	[m
+ 	@PostMapping("/add")[m
+[31m-	public Result add(@RequestBody JobAdvertisement jobAdvertisement) {[m
+[31m-		return jobAdvertisementService.add(jobAdvertisement);[m
+[32m+[m	[32mpublic ResponseEntity<?> add(@Valid @RequestBody JobAdvertisement jobAdvertisement) {[m
+[32m+[m		[32mreturn ResponseEntity.ok(jobAdvertisementService.add(jobAdvertisement));[m
+[32m+[m	[32m}[m
+[32m+[m[41m	[m
+[32m+[m	[32m@ExceptionHandler(MethodArgumentNotValidException.class)[m
+[32m+[m	[32m@ResponseStatus(HttpStatus.BAD_REQUEST)[m
+[32m+[m	[32mpublic ErrorDataResult<Object> handleValidationException(MethodArgumentNotValidException exceptions){[m
+[32m+[m[41m		[m
+[32m+[m		[32mMap<String, String> validationErrors= new HashMap<String, String>();[m
+[32m+[m[41m		[m
+[32m+[m		[32mfor(FieldError fieldError : exceptions.getBindingResult().getFieldErrors()) {[m
+[32m+[m			[32mvalidationErrors.put(fieldError.getField(), fieldError.getDefaultMessage());[m
+[32m+[m		[32m}[m
+[32m+[m		[32mErrorDataResult<Object> errors = new ErrorDataResult<Object>(validationErrors, "Doğrulama hataları");[m
+[32m+[m		[32mreturn errors;[m
+ 	}[m
+ 	[m
+[31m-	@GetMapping("/getAllDto")[m
+[32m+[m	[32m@GetMapping("/getByAllWithDto")[m
+ 	public DataResult<List<JobAdvertisementWithEmployerDto>> getAllDto(){[m
+ 		return jobAdvertisementService.getAllDto();[m
+ 	}[m
+[36m@@ -45,9 +73,24 @@[m [mpublic class JobAdvertisementController {[m
+ 		return this.jobAdvertisementService.getByEmployer_CompanyNameAndIsActiveTrue(companyName);[m
+ 	}[m
+ 	[m
+[31m-	@GetMapping("/findByOrderByDeadlineDesc")      //Çalışmıyor[m
+[31m-	public DataResult<List<JobAdvertisementWithEmployerDto>> getByWithDto(boolean isActive){[m
+[31m-		return jobAdvertisementService.findByOrderByDeadlineIsActive(isActive);[m
+[32m+[m	[32m@GetMapping("/getByJobAdvertisement_JobAdvertisementId")[m
+[32m+[m	[32mpublic DataResult<JobAdvertisementWithEmployerDto> getByJobAdvertisement_JobAdvertisementId(int  jobAdvertisementId){[m
+[32m+[m		[32mreturn this.jobAdvertisementService.getByJobAdvertisement_JobAdvertisementId(jobAdvertisementId);[m
+[32m+[m	[32m}[m
+[32m+[m[41m	[m
+[32m+[m	[32m@GetMapping("/getByJobAdvertisementName")[m
+[32m+[m	[32mpublic DataResult<List<JobAdvertisement>> getByJobAdvertisementName(String jobAdvertisementName){[m
+[32m+[m		[32mreturn this.jobAdvertisementService.getByJobAdvertisementName(jobAdvertisementName);[m
+[32m+[m	[32m}[m[41m [m
+[32m+[m[41m	[m
+[32m+[m	[32m@GetMapping("/getByWebSite")[m
+[32m+[m	[32mpublic DataResult<List<JobAdvertisementWithEmployerDto>> getByWebsite(String webSite){[m
+[32m+[m		[32mreturn this.jobAdvertisementService.getByWebsite(webSite);[m
+[32m+[m	[32m}[m
+[32m+[m[41m	[m
+[32m+[m	[32m@GetMapping("/findByIsActiveAndOrderByDeadline")[m[41m    [m
+[32m+[m	[32mpublic DataResult<List<JobAdvertisementWithEmployerDto>> findByIsActiveAndOrderByDeadline(boolean isActive){[m
+[32m+[m		[32mreturn jobAdvertisementService.findByIsActiveAndOrderByDeadline(isActive);[m
+ 	}[m
+ 	[m
+ 	@PostMapping("/updateIsActive")[m
+[36m@@ -60,4 +103,6 @@[m [mpublic class JobAdvertisementController {[m
+ 		return this.jobAdvertisementService.getAllSorted();[m
+ 	}[m
+ 	[m
+[32m+[m
+[32m+[m[41m	[m
+ }[m
+[1mdiff --git a/src/main/java/com/project/hrms/api/controllers/JobPositionController.java b/src/main/java/com/project/hrms/api/controllers/JobPositionController.java[m
+[1mindex 5157ec4..2061bf3 100644[m
+[1m--- a/src/main/java/com/project/hrms/api/controllers/JobPositionController.java[m
+[1m+++ b/src/main/java/com/project/hrms/api/controllers/JobPositionController.java[m
+[36m@@ -2,6 +2,8 @@[m [mpackage com.project.hrms.api.controllers;[m
+ [m
+ import java.util.List;[m
+ [m
+[32m+[m[32mimport org.springframework.beans.factory.annotation.Autowired;[m
+[32m+[m[32mimport org.springframework.web.bind.annotation.CrossOrigin;[m
+ import org.springframework.web.bind.annotation.GetMapping;[m
+ import org.springframework.web.bind.annotation.PostMapping;[m
+ import org.springframework.web.bind.annotation.RequestBody;[m
+[36m@@ -13,12 +15,14 @@[m [mimport com.project.hrms.core.utilities.results.DataResult;[m
+ import com.project.hrms.core.utilities.results.Result;[m
+ import com.project.hrms.entities.concretes.JobPosition;[m
+ [m
+[32m+[m[32m@CrossOrigin[m
+ @RestController[m
+ @RequestMapping("/api/jopPosition")[m
+ public class JobPositionController {[m
+ [m
+ 	private JobPositionService jobPositionService;[m
+ 	[m
+[32m+[m	[32m@Autowired[m
+ 	public JobPositionController (JobPositionService jobPositionService){[m
+ 		super();[m
+ 		this.jobPositionService= jobPositionService;[m
+[36m@@ -26,7 +30,7 @@[m [mpublic class JobPositionController {[m
+ 	[m
+ 	@GetMapping("/getAll")[m
+ 	public DataResult<List<JobPosition>> getAll (){[m
+[31m-		return jobPositionService.getAll();[m
+[32m+[m		[32mreturn this.jobPositionService.getAll();[m
+ 	}[m
+ 	[m
+ 	@PostMapping("/add")[m
+[1mdiff --git a/src/main/java/com/project/hrms/api/controllers/JobSeekerController.java b/src/main/java/com/project/hrms/api/controllers/JobSeekerController.java[m
+[1mindex ab216e1..7489a0c 100644[m
+[1m--- a/src/main/java/com/project/hrms/api/controllers/JobSeekerController.java[m
+[1m+++ b/src/main/java/com/project/hrms/api/controllers/JobSeekerController.java[m
+[36m@@ -2,6 +2,7 @@[m [mpackage com.project.hrms.api.controllers;[m
+ [m
+ import java.util.List;[m
+ [m
+[32m+[m[32mimport org.springframework.web.bind.annotation.CrossOrigin;[m
+ import org.springframework.web.bind.annotation.DeleteMapping;[m
+ import org.springframework.web.bind.annotation.GetMapping;[m
+ import org.springframework.web.bind.annotation.PostMapping;[m
+[36m@@ -15,6 +16,7 @@[m [mimport com.project.hrms.core.utilities.results.ErrorDataResult;[m
+ import com.project.hrms.core.utilities.results.Result;[m
+ import com.project.hrms.entities.concretes.JobSeeker;[m
+ [m
+[32m+[m[32m@CrossOrigin[m
+ @RestController[m
+ @RequestMapping("/api/jobSeeker")[m
+ public class JobSeekerController {[m
+[36m@@ -48,7 +50,7 @@[m [mpublic class JobSeekerController {[m
+ [m
+ 	@PostMapping("/add")[m
+ 	public Result add(@RequestBody JobSeeker jobSeeker) throws Exception{[m
+[31m-		return jobSeekerService.add(jobSeeker);[m
+[32m+[m		[32mreturn this.jobSeekerService.add(jobSeeker);[m
+ 	}[m
+ 	[m
+ 	@DeleteMapping("/delete")[m
+[36m@@ -57,8 +59,8 @@[m [mpublic class JobSeekerController {[m
+ 	}[m
+ 	[m
+ 	@PostMapping("/update")[m
+[31m-	public Result updateAll(int id, String name, String identification, JobSeeker jobSeeker) {[m
+[31m-		return this.jobSeekerService.updateAll(id, jobSeeker, name, identification);[m
+[32m+[m	[32mpublic Result updateAll(int id, String email, String password, @RequestBody JobSeeker jobSeeker) {[m
+[32m+[m		[32mreturn this.jobSeekerService.updateAll(id, email, password, jobSeeker);[m
+ 	}[m
+ [m
+ 	[m
+[1mdiff --git a/src/main/java/com/project/hrms/business/abstracts/JobAdvertisementService.java b/src/main/java/com/project/hrms/business/abstracts/JobAdvertisementService.java[m
+[1mindex 0191177..bfb15d2 100644[m
+[1m--- a/src/main/java/com/project/hrms/business/abstracts/JobAdvertisementService.java[m
+[1m+++ b/src/main/java/com/project/hrms/business/abstracts/JobAdvertisementService.java[m
+[36m@@ -9,12 +9,16 @@[m [mimport com.project.hrms.entities.dtos.JobAdvertisementWithEmployerDto;[m
+ [m
+ public interface JobAdvertisementService {[m
+ [m
+[31m-	public DataResult<List<JobAdvertisement>>  getAll();[m
+[31m-	public Result add(JobAdvertisement jobAdvertisement);[m
+[31m-	public DataResult<List<JobAdvertisementWithEmployerDto>> getAllDto();[m
+[31m-	public DataResult<List<JobAdvertisementWithEmployerDto>> getByEmployer_CompanyNameAndIsActiveTrue(String companName);[m
+[31m-	public DataResult<List<JobAdvertisement>> getAllSorted();[m
+[31m-	public DataResult<List<JobAdvertisementWithEmployerDto>> findByOrderByDeadlineIsActive(boolean isActive);[m
+[31m-	public Result updateIsActiveByJobAdventisementName (boolean isActive, String jobAdventisementName);[m
+[32m+[m	[32mDataResult<List<JobAdvertisement>>  getAll();[m
+[32m+[m	[32mResult add(JobAdvertisement jobAdvertisement);[m
+[32m+[m	[32mDataResult<List<JobAdvertisementWithEmployerDto>> getAllDto();[m
+[32m+[m	[32mDataResult<List<JobAdvertisementWithEmployerDto>> getByEmployer_CompanyNameAndIsActiveTrue(String companName);[m
+[32m+[m	[32mDataResult<JobAdvertisementWithEmployerDto> getByJobAdvertisement_JobAdvertisementId(int  jobAdvertisementId);[m
+[32m+[m	[32mDataResult<List<JobAdvertisement>> getByJobAdvertisementName(String jobAdvertisementName);[m
+[32m+[m	[32mDataResult<List<JobAdvertisementWithEmployerDto>> getByWebsite(String website);[m
+[32m+[m	[32mDataResult<List<JobAdvertisement>> getAllSorted();[m
+[32m+[m	[32mDataResult<List<JobAdvertisementWithEmployerDto>> findByIsActiveAndOrderByDeadline(boolean isActive);[m
+[32m+[m	[32mResult updateIsActiveByJobAdventisementName (boolean isActive, String jobAdventisementName);[m
+[32m+[m[41m	[m
+ 	[m
+ }[m
+[1mdiff --git a/src/main/java/com/project/hrms/business/abstracts/JobSeekerService.java b/src/main/java/com/project/hrms/business/abstracts/JobSeekerService.java[m
+[1mindex 5de04cf..07021a4 100644[m
+[1m--- a/src/main/java/com/project/hrms/business/abstracts/JobSeekerService.java[m
+[1m+++ b/src/main/java/com/project/hrms/business/abstracts/JobSeekerService.java[m
+[36m@@ -12,7 +12,7 @@[m [mpublic interface JobSeekerService {[m
+ 	public DataResult<JobSeeker> getById(int id);[m
+ 	public Result add(JobSeeker jobSeeker) throws Exception;[m
+ 	public Result deleteById(int id);[m
+[31m-	public Result updateAll(int id,  JobSeeker jobSeeker, String name, String identification);[m
+[32m+[m	[32mpublic Result updateAll(int id,  String email, String password, JobSeeker jobSeeker);[m
+ 	public DataResult<JobSeeker> getByJobSeekerName(String name);[m
+ 	[m
+ }[m
+[1mdiff --git a/src/main/java/com/project/hrms/business/concretes/JobAdvertisementManager.java b/src/main/java/com/project/hrms/business/concretes/JobAdvertisementManager.java[m
+[1mindex 6740987..e33905b 100644[m
+[1m--- a/src/main/java/com/project/hrms/business/concretes/JobAdvertisementManager.java[m
+[1m+++ b/src/main/java/com/project/hrms/business/concretes/JobAdvertisementManager.java[m
+[36m@@ -2,6 +2,7 @@[m [mpackage com.project.hrms.business.concretes;[m
+ [m
+ import java.util.List;[m
+ [m
+[32m+[m[32mimport org.springframework.beans.factory.annotation.Autowired;[m
+ import org.springframework.data.domain.Sort;[m
+ import org.springframework.stereotype.Service;[m
+ [m
+[36m@@ -22,6 +23,7 @@[m [mpublic class JobAdvertisementManager implements JobAdvertisementService{[m
+ [m
+ 	JobAdvertisementDao jobAdvertisementDao;[m
+ 	[m
+[32m+[m	[32m@Autowired[m
+ 	public JobAdvertisementManager(JobAdvertisementDao jobAdvertisementDao) {[m
+ 		this.jobAdvertisementDao= jobAdvertisementDao;[m
+ 	}[m
+[36m@@ -47,7 +49,7 @@[m [mpublic class JobAdvertisementManager implements JobAdvertisementService{[m
+ 	[m
+ 	@Override[m
+ 	public DataResult<List<JobAdvertisementWithEmployerDto>> getAllDto(){[m
+[31m-		return new SuccessDataResult<List<JobAdvertisementWithEmployerDto>>(this.jobAdvertisementDao.getAllWithDto(), [m
+[32m+[m			[32mreturn new SuccessDataResult<List<JobAdvertisementWithEmployerDto>>(jobAdvertisementDao.getAllWithDto(),[m[41m [m
+ 				"İş ilanları başarıyla listelendi");[m
+ 	}[m
+ [m
+[36m@@ -57,12 +59,33 @@[m [mpublic class JobAdvertisementManager implements JobAdvertisementService{[m
+ 				this.jobAdvertisementDao.getByEmployer_CompanyNameAndIsActiveTrue(companyName), [m
+ 				companyName + " firmasına ait tüm iş ilanları başarıyla listelendi");[m
+ 	}[m
+[31m-[m
+[31m-	@Override //Çalışmıyor[m
+[31m-	public DataResult<List<JobAdvertisementWithEmployerDto>> findByOrderByDeadlineIsActive(boolean isActive) { [m
+[32m+[m[41m	[m
+[32m+[m	[32m@Override[m
+[32m+[m	[32mpublic DataResult <JobAdvertisementWithEmployerDto> getByJobAdvertisement_JobAdvertisementId(int  jobAdvertisementId){[m
+[32m+[m		[32mreturn new SuccessDataResult <JobAdvertisementWithEmployerDto>([m
+[32m+[m				[32mthis.jobAdvertisementDao.getByJobAdvertisement_JobAdvertisementId(jobAdvertisementId),[m
+[32m+[m				[32mjobAdvertisementId + " id ye ait tüm iş ilanları başarıyla listelendi");[m
+[32m+[m	[32m}[m
+[32m+[m[41m	[m
+[32m+[m	[32m@Override[m
+[32m+[m	[32mpublic DataResult<List<JobAdvertisement>> getByJobAdvertisementName(String jobAdvertisementName){[m
+[32m+[m		[32mreturn new SuccessDataResult<List<JobAdvertisement>>(this.jobAdvertisementDao.getByJobAdvertisementName(jobAdvertisementName), "İş ilanları isme göre getirildi");[m
+[32m+[m	[32m}[m
+[32m+[m[41m	[m
+[32m+[m[41m	[m
+[32m+[m[41m	[m
+[32m+[m	[32m@Override[m
+[32m+[m	[32mpublic DataResult<List<JobAdvertisementWithEmployerDto>> getByWebsite(String webSite){[m
+[32m+[m		[32mreturn new SuccessDataResult<List<JobAdvertisementWithEmployerDto>>([m
+[32m+[m				[32mthis.jobAdvertisementDao.getByEmployer_WebSite(webSite),[m
+[32m+[m				[32mwebSite + " sitesine ait tüm iş ilanları başarıyla listelendi");[m
+[32m+[m	[32m}[m
+[32m+[m[41m	[m
+[32m+[m	[32m@Override[m[41m [m
+[32m+[m	[32mpublic DataResult<List<JobAdvertisementWithEmployerDto>> findByIsActiveAndOrderByDeadline(boolean isActive) {[m[41m [m
+ 		Sort sort = Sort.by(Sort.Direction.DESC, "j.deadline");[m
+ 		return new SuccessDataResult<List<JobAdvertisementWithEmployerDto>> ([m
+[31m-				this.jobAdvertisementDao.findByIsActiveTrueOrderByDeadline(sort, isActive), "İş ilanları tarihe göre başarıyla listelendi");[m
+[32m+[m				[32mthis.jobAdvertisementDao.findByIsActiveAndOrderByDeadline(sort, isActive), "İş ilanları tarihe göre başarıyla listelendi");[m
+ 	}[m
+ [m
+ 	@Override[m
+[1mdiff --git a/src/main/java/com/project/hrms/business/concretes/JobSeekerManager.java b/src/main/java/com/project/hrms/business/concretes/JobSeekerManager.java[m
+[1mindex 2ce2493..29fe065 100644[m
+[1m--- a/src/main/java/com/project/hrms/business/concretes/JobSeekerManager.java[m
+[1m+++ b/src/main/java/com/project/hrms/business/concretes/JobSeekerManager.java[m
+[36m@@ -7,7 +7,7 @@[m [mimport org.springframework.stereotype.Service;[m
+ [m
+ import com.project.hrms.business.abstracts.JobSeekerService;[m
+ import com.project.hrms.business.abstracts.UserService;[m
+[31m-import com.project.hrms.core.mernis.business.abstracts.JobSeekersFakeService;[m
+[32m+[m[32mimport com.project.hrms.core.mernis.adapters.MernisCheckService;[m
+ import com.project.hrms.core.utilities.results.DataResult;[m
+ import com.project.hrms.core.utilities.results.ErrorResult;[m
+ import com.project.hrms.core.utilities.results.Result;[m
+[36m@@ -27,17 +27,15 @@[m [mimport com.project.hrms.entities.concretes.JobSeeker;[m
+ public class JobSeekerManager implements JobSeekerService{[m
+ [m
+ 	private JobSeekerDao jobSeekerDao;[m
+[31m-	private JobSeekersFakeService jobSeekersFakeService;[m
+ 	private UserService userService;[m
+[31m-	//private UserCheckService userCheckService;[m
+[32m+[m	[32mprivate MernisCheckService mernisCheckService;[m
+ 	[m
+ 	@Autowired[m
+[31m-	public JobSeekerManager(JobSeekerDao jobSeekerDao, JobSeekersFakeService jobSeekersFakeService, UserService userService) {[m
+[32m+[m	[32mpublic JobSeekerManager(JobSeekerDao jobSeekerDao, UserService userService, MernisCheckService mernisCheckService) {[m
+ 		super();[m
+ 		this.jobSeekerDao= jobSeekerDao; [m
+[31m-		this.jobSeekersFakeService= jobSeekersFakeService;[m
+ 		this.userService= userService;[m
+[31m-		//this.userCheckService= userCheckService;[m
+[32m+[m		[32mthis.mernisCheckService= mernisCheckService;[m
+ 	}[m
+ 	[m
+ 	@Override[m
+[36m@@ -47,7 +45,7 @@[m [mpublic class JobSeekerManager implements JobSeekerService{[m
+ 	[m
+ 	@Override[m
+ 	public DataResult<JobSeeker> getById(int id) {[m
+[31m-		return new SuccessDataResult<JobSeeker>(this.jobSeekerDao.getById(id), "İş arayan eklendi");[m
+[32m+[m		[32mreturn new SuccessDataResult<JobSeeker>(this.jobSeekerDao.getById(id), "İş arayan getirildi");[m
+ 	}[m
+ 	[m
+ 	public DataResult<JobSeeker> getByJobSeekerName(String name){[m
+[36m@@ -75,6 +73,7 @@[m [mpublic class JobSeekerManager implements JobSeekerService{[m
+ 		Result retryPassword = RetryPasswordValidator.valid(jobSeeker.getRetry_password());[m
+ 		Result emailCheck = userService.checkIfEmailAlreadyExists(jobSeeker.getEmail());[m
+ 		Result identificationCheck = checkIfIdentificationAlreadyExists(jobSeeker.getIdentification());[m
+[32m+[m		[32mResult chekedPerson = mernisCheckService.checkIfRealPerson(jobSeeker);[m
+ 		[m
+ 		if (!name.isSuccess()) return new ErrorResult(name.getMessage());[m
+ 		if (!lastName.isSuccess()) return new ErrorResult(lastName.getMessage());[m
+[36m@@ -85,7 +84,8 @@[m [mpublic class JobSeekerManager implements JobSeekerService{[m
+ 		if (!retryPassword.isSuccess()) return new ErrorResult(retryPassword.getMessage());[m
+ 		if (!emailCheck.isSuccess()) return new ErrorResult(emailCheck.getMessage()); [m
+ 		if (!identificationCheck.isSuccess()) return new ErrorResult(identificationCheck.getMessage());[m
+[31m-		if (!jobSeekersFakeService.verifyIdentification()) return new ErrorResult("Böyle bir kişi yaşamıyor");[m
+[32m+[m		[32mif (!chekedPerson.isSuccess()) return new ErrorResult(chekedPerson.getMessage());[m
+[32m+[m		[32m//if (!jobSeekersFakeService.verifyIdentification()) return new ErrorResult("Böyle bir kişi yaşamıyor");[m
+ [m
+ 			this.jobSeekerDao.save(jobSeeker);[m
+ 		return new SuccessResult("İş arayan eklendi");[m
+[36m@@ -107,11 +107,11 @@[m [mpublic class JobSeekerManager implements JobSeekerService{[m
+ 		return new SuccessResult("İş arayan silindi!");[m
+ 	}[m
+ 	[m
+[31m-	public Result updateAll(int id, JobSeeker jobSeeker, String name, String identification) {[m
+[32m+[m	[32mpublic Result updateAll(int id, String email, String password, JobSeeker jobSeeker) {[m
+ [m
+ 			jobSeeker = jobSeekerDao.getById(id);[m
+[31m-			jobSeeker.setName(name);[m
+[31m-			jobSeeker.setIdentification(identification);[m
+[32m+[m			[32mjobSeeker.setEmail(email);[m
+[32m+[m			[32mjobSeeker.setPassword(password);[m
+ 			this.jobSeekerDao.save(jobSeeker);[m
+ 		[m
+ 		return new SuccessResult("İş arayan güncellendi");[m
+[1mdiff --git a/src/main/java/com/project/hrms/core/mernis/adapters/MernisServiceAdapter.java b/src/main/java/com/project/hrms/core/mernis/adapters/MernisServiceAdapter.java[m
+[1mindex 50e45cd..7dca63b 100644[m
+[1m--- a/src/main/java/com/project/hrms/core/mernis/adapters/MernisServiceAdapter.java[m
+[1m+++ b/src/main/java/com/project/hrms/core/mernis/adapters/MernisServiceAdapter.java[m
+[36m@@ -2,7 +2,6 @@[m [mpackage com.project.hrms.core.mernis.adapters;[m
+ [m
+ import org.springframework.stereotype.Service;[m
+ [m
+[31m-import com.project.hrms.core.mernis.business.abstracts.UserCheckService;[m
+ import com.project.hrms.core.utilities.results.ErrorResult;[m
+ import com.project.hrms.core.utilities.results.Result;[m
+ import com.project.hrms.core.utilities.results.SuccessResult;[m
+[36m@@ -11,7 +10,7 @@[m [mimport com.project.hrms.entities.concretes.JobSeeker;[m
+ import tr.gov.nvi.tckimlik.WS.KPSPublicSoapProxy;[m
+ [m
+ @Service[m
+[31m-public class MernisServiceAdapter implements UserCheckService{[m
+[32m+[m[32mpublic class MernisServiceAdapter implements MernisCheckService{[m
+ 	[m
+ 	@Override[m
+ 	public Result checkIfRealPerson (JobSeeker jobSeeker) throws Exception{[m
+[36m@@ -24,7 +23,7 @@[m [mpublic class MernisServiceAdapter implements UserCheckService{[m
+ 					Integer.parseInt(jobSeeker.getDateOfYear()));[m
+ 			[m
+ 			if (!result) {[m
+[31m-				return new ErrorResult("Böyle bir kişi yaşamıyor");[m
+[32m+[m				[32mreturn new ErrorResult("Geçersiz kimlik doğrulama");[m
+ 			}[m
+ 			[m
+ 			return new SuccessResult();[m
+[1mdiff --git a/src/main/java/com/project/hrms/core/validations/DeadlineValidator.java b/src/main/java/com/project/hrms/core/validations/DeadlineValidator.java[m
+[1mindex ce8b28e..9065c57 100644[m
+[1m--- a/src/main/java/com/project/hrms/core/validations/DeadlineValidator.java[m
+[1m+++ b/src/main/java/com/project/hrms/core/validations/DeadlineValidator.java[m
+[36m@@ -1,6 +1,6 @@[m
+ package com.project.hrms.core.validations;[m
+ [m
+[31m-import java.util.Date;[m
+[32m+[m[32mimport java.time.LocalDateTime;[m
+ [m
+ import com.project.hrms.core.utilities.results.ErrorResult;[m
+ import com.project.hrms.core.utilities.results.Result;[m
+[36m@@ -8,8 +8,8 @@[m [mimport com.project.hrms.core.utilities.results.SuccessResult;[m
+ [m
+ public class DeadlineValidator {[m
+ [m
+[31m-	public static Result valid (Date date) {[m
+[31m-		if (date == null) {[m
+[32m+[m	[32mpublic static Result valid (String string) {[m
+[32m+[m		[32mif (string == null) {[m
+ 			return new ErrorResult("Son başvuru tarihi boş geçilemez");[m
+ 		}[m
+ 		return new SuccessResult();[m
+[1mdiff --git a/src/main/java/com/project/hrms/dataAccess/abstracts/JobAdvertisementDao.java b/src/main/java/com/project/hrms/dataAccess/abstracts/JobAdvertisementDao.java[m
+[1mindex e521a1e..f7ec925 100644[m
+[1m--- a/src/main/java/com/project/hrms/dataAccess/abstracts/JobAdvertisementDao.java[m
+[1m+++ b/src/main/java/com/project/hrms/dataAccess/abstracts/JobAdvertisementDao.java[m
+[36m@@ -15,18 +15,25 @@[m [mimport com.project.hrms.entities.dtos.JobAdvertisementWithEmployerDto;[m
+ public interface JobAdvertisementDao extends JpaRepository<JobAdvertisement, Integer>{[m
+ 	[m
+ 	public final String queryString = "Select new com.project.hrms.entities.dtos.JobAdvertisementWithEmployerDto("[m
+[31m-			+ "e.companyName, j.jobAdvertisementName, j.openPosition, j.releaseDateTime, j.deadline) "[m
+[32m+[m			[32m+ "e.companyName, e.webSite, j.jobAdvertisementId, j.jobAdvertisementName, j.openPosition, j.releaseDateTime, j.deadline) "[m
+ 			+ "From Employer e Inner Join e.jobAdvertisement j";[m
+ [m
+ 	@Query(queryString)[m
+ 	List<JobAdvertisementWithEmployerDto> getAllWithDto();[m
+ [m
+ 	@Query(queryString + " where j.isActive=:isActive")[m
+[31m-	List<JobAdvertisementWithEmployerDto> findByIsActiveTrueOrderByDeadline(Sort sort, boolean isActive);[m
+[32m+[m	[32mList<JobAdvertisementWithEmployerDto> findByIsActiveAndOrderByDeadline(Sort sort, boolean isActive);[m
+ 	[m
+[31m-	@Query(queryString + " where j.isActive=true AND e.companyName=:companyName")[m
+[32m+[m	[32m@Query(queryString + " WHERE j.isActive = true AND e.companyName LIKE %:companyName%")[m
+ 	List<JobAdvertisementWithEmployerDto> getByEmployer_CompanyNameAndIsActiveTrue(String companyName);[m
+ 	[m
+[32m+[m	[32m@Query(queryString + " where j.jobAdvertisementId=:jobAdvertisementId")[m
+[32m+[m	[32mJobAdvertisementWithEmployerDto getByJobAdvertisement_JobAdvertisementId(int jobAdvertisementId);[m
+[32m+[m[41m	[m
+[32m+[m	[32mList<JobAdvertisement>  getByJobAdvertisementName(String jobAdvertisementName);[m
+[32m+[m[41m	[m
+[32m+[m	[32m@Query(queryString + " where e.webSite=:webSite")[m
+[32m+[m	[32mList<JobAdvertisementWithEmployerDto> getByEmployer_WebSite(String webSite);[m
+ 	[m
+ 	[m
+ 	@Transactional[m
+[1mdiff --git a/src/main/java/com/project/hrms/entities/concretes/JobAdvertisement.java b/src/main/java/com/project/hrms/entities/concretes/JobAdvertisement.java[m
+[1mindex 0c62be3..35ef692 100644[m
+[1m--- a/src/main/java/com/project/hrms/entities/concretes/JobAdvertisement.java[m
+[1m+++ b/src/main/java/com/project/hrms/entities/concretes/JobAdvertisement.java[m
+[36m@@ -1,7 +1,7 @@[m
+ package com.project.hrms.entities.concretes;[m
+ [m
+ import java.time.LocalDateTime;[m
+[31m-import java.util.Date;[m
+[32m+[m[32mimport java.time.format.DateTimeFormatter;[m
+ [m
+ import javax.persistence.Column;[m
+ import javax.persistence.Entity;[m
+[36m@@ -10,6 +10,8 @@[m [mimport javax.persistence.Id;[m
+ import javax.persistence.JoinColumn;[m
+ import javax.persistence.ManyToOne;[m
+ import javax.persistence.Table;[m
+[32m+[m[32mimport javax.validation.constraints.NotBlank;[m
+[32m+[m[32mimport javax.validation.constraints.NotNull;[m
+ [m
+ import lombok.AllArgsConstructor;[m
+ import lombok.Data;[m
+[36m@@ -30,7 +32,10 @@[m [mpublic class JobAdvertisement {[m
+ 	@Column(name= "job_advertisement_name")[m
+ 	private String jobAdvertisementName;[m
+ 	[m
+[32m+[m
+ 	@Column(name= "job_definition")[m
+[32m+[m	[32m@NotBlank[m
+[32m+[m	[32m@NotNull[m
+ 	private String jobDefinition;[m
+ 	[m
+ 	@Column(name= "min_salary")[m
+[36m@@ -43,11 +48,12 @@[m [mpublic class JobAdvertisement {[m
+ 	private int openPosition;[m
+ 	[m
+ 	@Column(name= "deadline")[m
+[31m-	private Date deadline;[m
+[32m+[m	[32mprivate LocalDateTime deadline;[m
+ 	[m
+ 	@Column(name= "release_date_time")[m
+ 	private LocalDateTime releaseDateTime = LocalDateTime.now();[m
+ 	[m
+[32m+[m	[32m@NotNull[m
+ 	@Column(name= "is_active")[m
+ 	private boolean isActive;[m
+ 	[m
+[36m@@ -63,4 +69,14 @@[m [mpublic class JobAdvertisement {[m
+ 	@JoinColumn(name= "city_id")[m
+ 	private City city;[m
+ 	[m
+[32m+[m	[32mpublic String getReleaseDateTime( ) {[m
+[32m+[m		[32mreturn DateTimeFormatter.ofPattern("dd-MM-yyyy").format(releaseDateTime);[m
+[32m+[m	[32m}[m
+[32m+[m	[32mpublic String getDeadline( ) {[m
+[32m+[m		[32mif (deadline == null) {[m
+[32m+[m	[32m        return "Deadline is not set.";[m
+[32m+[m	[32m    }[m
+[32m+[m		[32mreturn DateTimeFormatter.ofPattern("dd-MM-yyyy").format(deadline);[m
+[32m+[m	[32m}[m
+[32m+[m[41m	[m
+ }[m
+[1mdiff --git a/src/main/java/com/project/hrms/entities/concretes/JobSeeker.java b/src/main/java/com/project/hrms/entities/concretes/JobSeeker.java[m
+[1mindex e073246..e8321ad 100644[m
+[1m--- a/src/main/java/com/project/hrms/entities/concretes/JobSeeker.java[m
+[1m+++ b/src/main/java/com/project/hrms/entities/concretes/JobSeeker.java[m
+[36m@@ -5,9 +5,11 @@[m [mimport javax.persistence.Entity;[m
+ import javax.persistence.GeneratedValue;[m
+ import javax.persistence.GenerationType;[m
+ import javax.persistence.Id;[m
+[32m+[m[32mimport javax.persistence.OneToOne;[m
+ import javax.persistence.Table;[m
+ [m
+ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;[m
+[32m+[m[32mimport com.project.hrms.entities.concretes.cv.Cv;[m
+ [m
+ import lombok.AllArgsConstructor;[m
+ import lombok.Data;[m
+[36m@@ -20,7 +22,7 @@[m [mimport lombok.NoArgsConstructor;[m
+ @AllArgsConstructor[m
+ @NoArgsConstructor[m
+ @EqualsAndHashCode(callSuper=false)[m
+[31m-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) [m
+[32m+[m[32m@JsonIgnoreProperties({"hibernateLazyInitializer","handler","cv"})[m
+ public class JobSeeker extends User{[m
+ [m
+ 	@Id[m
+[36m@@ -38,7 +40,10 @@[m [mpublic class JobSeeker extends User{[m
+ 	private String dateOfYear;[m
+ 	[m
+ 	@Column(name= "identification", nullable = false)[m
+[31m-	private String identification;[m
+[32m+[m	[32mprivate String identification;[m[41m		[m
+[32m+[m[41m	[m
+[32m+[m	[32m@OneToOne(mappedBy = "jobSeeker")[m
+[32m+[m	[32mprivate Cv cv;[m
+ 	[m
+ 	[m
+ }[m
+[1mdiff --git a/src/main/java/com/project/hrms/entities/concretes/User.java b/src/main/java/com/project/hrms/entities/concretes/User.java[m
+[1mindex 76a64da..f711c21 100644[m
+[1m--- a/src/main/java/com/project/hrms/entities/concretes/User.java[m
+[1m+++ b/src/main/java/com/project/hrms/entities/concretes/User.java[m
+[36m@@ -27,7 +27,7 @@[m [mpublic class User {[m
+ 	private int id;[m
+ [m
+ 	@Column(name= "log_id")[m
+[31m-	private int log_id;[m
+[32m+[m	[32mprivate int logId;[m
+ 	[m
+ 	@Column(name= "email")[m
+ 	private String email;[m
+[1mdiff --git a/src/main/java/com/project/hrms/entities/dtos/JobAdvertisementWithEmployerDto.java b/src/main/java/com/project/hrms/entities/dtos/JobAdvertisementWithEmployerDto.java[m
+[1mindex 2b560d1..d3abc2a 100644[m
+[1m--- a/src/main/java/com/project/hrms/entities/dtos/JobAdvertisementWithEmployerDto.java[m
+[1m+++ b/src/main/java/com/project/hrms/entities/dtos/JobAdvertisementWithEmployerDto.java[m
+[36m@@ -1,7 +1,7 @@[m
+ package com.project.hrms.entities.dtos;[m
+ [m
+ import java.time.LocalDateTime;[m
+[31m-import java.util.Date;[m
+[32m+[m[32mimport java.time.format.DateTimeFormatter;[m
+ [m
+ import lombok.AllArgsConstructor;[m
+ import lombok.Data;[m
+[36m@@ -16,20 +16,34 @@[m [mpublic class JobAdvertisementWithEmployerDto {[m
+ 	 * private int jobAdvertisementId; private int JobPositionId; private int[m
+ 	 * employerId; private int cityId;[m
+ 	 */[m
+[32m+[m
+ 	private String companyName;[m
+[32m+[m	[32mprivate String webSite;[m
+[32m+[m	[32mprivate int jobAdvertisementId;[m
+ 	private String jobAdvertisementName;[m
+ 	//private String jobDefinition;[m
+ 	private int openPosition;[m
+ 	//private int minSalary;[m
+ 	//private int maxSalary;[m
+ 	[m
+[31m-	//private boolean isActive;[m
+[32m+[m	[32mpublic String getReleaseDateTime( ) {[m
+[32m+[m		[32mreturn DateTimeFormatter.ofPattern("dd-MM-yyyy").format(releaseDateTime);[m
+[32m+[m	[32m}[m
+[32m+[m	[32mpublic String getDeadline( ) {[m
+[32m+[m		[32mif (deadline == null) {[m
+[32m+[m	[32m        return "Bilinmiyor";[m
+[32m+[m	[32m    }[m
+[32m+[m		[32mreturn DateTimeFormatter.ofPattern("dd-MM-yyyy").format(deadline);[m
+[32m+[m	[32m}[m
+[32m+[m[41m	[m
+[32m+[m[41m	[m
+[32m+[m	[32m//private boolean isActive;[m[41m	[m
+ 	[m
+ 	[m
+ 	[m
+ 	//@Nullable(message= "must be null")[m
+ 	private LocalDateTime releaseDateTime = LocalDateTime.now();[m
+[31m-	private Date deadline;[m
+[31m-	[m
+[32m+[m	[32mprivate LocalDateTime deadline;[m
+[32m+[m
+ 	[m
+ }[m

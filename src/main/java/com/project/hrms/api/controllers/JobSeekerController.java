@@ -2,6 +2,7 @@ package com.project.hrms.api.controllers;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import com.project.hrms.core.utilities.results.ErrorDataResult;
 import com.project.hrms.core.utilities.results.Result;
 import com.project.hrms.entities.concretes.JobSeeker;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/jobSeeker")
 public class JobSeekerController {
@@ -48,7 +50,7 @@ public class JobSeekerController {
 
 	@PostMapping("/add")
 	public Result add(@RequestBody JobSeeker jobSeeker) throws Exception{
-		return jobSeekerService.add(jobSeeker);
+		return this.jobSeekerService.add(jobSeeker);
 	}
 	
 	@DeleteMapping("/delete")
@@ -57,8 +59,8 @@ public class JobSeekerController {
 	}
 	
 	@PostMapping("/update")
-	public Result updateAll(int id, String name, String identification, JobSeeker jobSeeker) {
-		return this.jobSeekerService.updateAll(id, jobSeeker, name, identification);
+	public Result updateAll(int id, String email, String password, @RequestBody JobSeeker jobSeeker) {
+		return this.jobSeekerService.updateAll(id, email, password, jobSeeker);
 	}
 
 	

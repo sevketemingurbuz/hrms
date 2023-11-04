@@ -5,9 +5,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.project.hrms.entities.concretes.cv.Cv;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +22,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper=false)
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) 
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler","cv"})
 public class JobSeeker extends User{
 
 	@Id
@@ -38,7 +40,10 @@ public class JobSeeker extends User{
 	private String dateOfYear;
 	
 	@Column(name= "identification", nullable = false)
-	private String identification;
+	private String identification;		
+	
+	@OneToOne(mappedBy = "jobSeeker")
+	private Cv cv;
 	
 	
 }

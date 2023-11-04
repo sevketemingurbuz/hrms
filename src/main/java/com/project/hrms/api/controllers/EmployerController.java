@@ -2,6 +2,8 @@ package com.project.hrms.api.controllers;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,12 +15,14 @@ import com.project.hrms.core.utilities.results.DataResult;
 import com.project.hrms.core.utilities.results.Result;
 import com.project.hrms.entities.concretes.Employer;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/employer")
 public class EmployerController {
 
 	private EmployerService employerService;
 	
+	@Autowired
 	public EmployerController (EmployerService employerService){
 		super();
 		this.employerService= employerService;
